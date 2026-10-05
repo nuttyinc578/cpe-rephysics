@@ -5,7 +5,7 @@ import hashlib
 import json
 import os
 import shutil
-import tempfile
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,7 +24,10 @@ def install(game: Path) -> Path:
     if destination.exists(): shutil.copytree(destination, backup/'cpe_rephysics')
     if config.exists(): shutil.copy2(config, backup/'cpe-backend.json')
     (backup/'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-    staged = Path(tempfile.mkdtemp(prefix='.rephysics-', dir=game))
+    # Normal mkdir inherits the game folder's Windows ACL. tempfile.mkdtemp
+    # creates a private ACL which would survive moves and block the game user.
+    staged = game / ('.rephysics-' + uuid.uuid4().hex)
+    staged.mkdir()
     try:
         shutil.copytree(source, staged/'cpe_rephysics', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (staged/'cpe_rephysics').glob('*.py')}
