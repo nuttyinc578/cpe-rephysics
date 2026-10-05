@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cpe-rephysics"
+version = "0.1.0"
+description = "Independent experimental CPE/1 physics solver with IPE"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
+
+[project.optional-dependencies]
+render = ["pygame==2.6.1"]
+
+[project.scripts]
+cpe-rephysics-flash = "cpe_rephysics.flash:main"
+
+[tool.setuptools.packages.find]
+include = ["cpe_rephysics*"]
