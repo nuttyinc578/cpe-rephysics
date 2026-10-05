@@ -33,6 +33,8 @@ class RephysicsTests(unittest.TestCase):
 
     def test_numeric_commands_and_pause(self):
         engine = CubePhysicsEngine()
+        self.assertEqual(engine.snapshot()['engine'], 'CPE')
+        self.assertEqual(engine.snapshot()['backend'], 'rephysics')
         engine.execute_line('CPE/1 1 2 200 100 20 1 255 90 30')
         engine.execute_line('CPE/1 2 11 1 15 0')
         engine.execute_line('CPE/1 3 40 1')

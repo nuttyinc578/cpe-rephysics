@@ -238,7 +238,8 @@ class CubePhysicsEngine:
 
     def snapshot(self) -> dict[str, Any]:
         return {
-            "engine": "CPE Rephysics",
+            "engine": "CPE",
+            "backend": "rephysics",
             "protocol": "CPE/1",
             "simulation_time": round(self._simulation_time, 4),
             "paused": self.paused,
@@ -266,6 +267,7 @@ class CubePhysicsEngine:
         snapshot = self.snapshot()
         return {
             "engine": snapshot["engine"],
+            "backend": "rephysics",
             "protocol": snapshot["protocol"],
             "physics_online": self.space is not None,
             "particles_online": self.particles is not None,
