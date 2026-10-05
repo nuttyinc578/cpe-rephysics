@@ -32,8 +32,10 @@ print(engine.snapshot())
 
 ## Flash into The Cube Beta
 
-Close the game. Use the updated game source containing `cpe/backend.py`, then
-run this command from this repository:
+Use an updated game with all three CPELoader components. In the game, press
+**Ctrl+A**, read the warning, and press **Y** to unlock and reset. **Shift+N**
+cancels without changing the lock. Close the game before flashing, then run
+this command from this repository (source or an updated portable game folder):
 
 ```console
 python -m cpe_rephysics.flash install --game "C:\path\to\THE-CUBE-GITHUB"
@@ -42,8 +44,14 @@ python -m cpe_rephysics.flash install --game "C:\path\to\THE-CUBE-GITHUB"
 This installs `cpe_rephysics/`, writes `cpe-backend.json`, and records the previous
 engine package and configuration in `backup/rephysics/<timestamp>/`. It injects
 the engine through the game's Python backend API. It does not patch a running
-process or modify executable bytes. Launch the Python game to use it immediately;
-rebuild the packaged executable with the updated game build configuration.
+process or modify executable bytes. Launch the updated game to use it immediately.
+Older executables must first be rebuilt with the backend selector and loader.
+
+Flashing and restoring are blocked until all three loader components are unlocked.
+An unlocked game pauses at 50% loading until you press Enter, warns about changed
+managed files, and blocks in-game version updates. Update with the external
+installer; reinstalling resets the loader to locked. This is an application-level
+gate, not protection against someone editing the loader code or state themselves.
 
 Restore using the backup path printed during installation:
 
@@ -51,8 +59,7 @@ Restore using the backup path printed during installation:
 python -m cpe_rephysics.flash restore --game "C:\path\to\THE-CUBE-GITHUB" --backup "C:\path\to\THE-CUBE-GITHUB\backup\rephysics\timestamp"
 ```
 
-Close and restart the game after changing engines. Rebuild the executable after
-restoring a packaged game's source. Backups are retained for manual recovery.
+Close and restart the game after changing engines. Backups are retained for manual recovery.
 
 ## Licence and origin
 

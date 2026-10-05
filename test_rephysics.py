@@ -1,6 +1,7 @@
 import builtins
 import math
 import tempfile
+import json
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -52,6 +53,11 @@ class RephysicsTests(unittest.TestCase):
             (game/'cpe_rephysics').mkdir()
             (game/'cpe_rephysics'/'original.txt').write_text('previous')
             (game/'cpe-backend.json').write_text('{"backend":"classic"}')
+            with self.assertRaises(PermissionError): install(game)
+            self.assertFalse((game/'backup').exists())
+            names = ('cpeloader.py', 'cpeloader_core_runtime.js', 'cpeloader_core.rb')
+            for name in names: (game/name).write_text('# fixture')
+            (game/'cpeloader_state.json').write_text(json.dumps({'unlocked': True, 'components': {name: True for name in names}}))
             backup = install(game)
             self.assertTrue((game/'cpe_rephysics'/'physics.py').exists())
             restore(game, backup)

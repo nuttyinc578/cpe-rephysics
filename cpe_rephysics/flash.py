@@ -10,11 +10,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+def require_unlocked(game: Path) -> None:
+    names = ('cpeloader.py', 'cpeloader_core_runtime.js', 'cpeloader_core.rb')
+    try:
+        state = json.loads((game/'cpeloader_state.json').read_text(encoding='utf-8'))
+        allowed = state.get('unlocked') is True and all(state.get('components', {}).get(name) is True and (game/name).is_file() for name in names)
+    except (OSError, ValueError, TypeError, AttributeError): allowed = False
+    if not allowed:
+        raise PermissionError('CPELoader is locked. Open the updated game, press Ctrl+A, then Y before flashing or restoring.')
+
+
 def install(game: Path) -> Path:
     game = game.resolve()
     if not game.is_dir(): raise ValueError('Game folder does not exist')
+    require_unlocked(game)
     source_game = (game/'cpe'/'backend.py').is_file() and (game/'cube_core.py').is_file()
-    if not source_game:
+    packaged_game = (game/'The Cube Beta Halloween Update.exe').is_file()
+    if not source_game and not packaged_game:
         raise ValueError('Flash requires the updated game source with cpe/backend.py. Flash source, then rebuild the executable.')
     source = Path(__file__).parent
     destination, config = game/'cpe_rephysics', game/'cpe-backend.json'
@@ -38,15 +50,16 @@ def install(game: Path) -> Path:
         staged_config.write_text(json.dumps(payload, indent=2), encoding='utf-8')
         os.replace(staged_config, config)
     except Exception:
-        restore(game, backup)
+        restore(game, backup, _rollback=True)
         raise
     finally:
         shutil.rmtree(staged)
     return backup
 
 
-def restore(game: Path, backup: Path) -> None:
+def restore(game: Path, backup: Path, *, _rollback: bool = False) -> None:
     game, backup = game.resolve(), backup.resolve()
+    if not _rollback: require_unlocked(game)
     if not backup.is_relative_to(game/'backup'/'rephysics'): raise ValueError('Backup must be inside this game')
     manifest = json.loads((backup/'manifest.json').read_text(encoding='utf-8'))
     if manifest['game'] != str(game): raise ValueError('Backup belongs to another game')
